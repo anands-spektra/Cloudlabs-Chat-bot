@@ -32,6 +32,7 @@ class MessageRead(BaseModel):
     content: str
     citations: List[CitationRead] = []
     attachments: List[AttachmentRead] = []
+    escalation_needed: bool = False
     created_at: datetime
 
     model_config = {"from_attributes": True}

@@ -61,7 +61,7 @@ export default function KPICards({ metrics = MOCK }: { metrics?: AdminMetrics })
       {kpis.map((k) => (
         <div
           key={k.label}
-          className="bg-white rounded-xl border border-gray-100 px-5 py-4 flex items-start justify-between"
+          className="bg-white rounded-xl border border-gray-100 px-5 py-4 flex items-start justify-between transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-primary-100"
         >
           <div>
             <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">

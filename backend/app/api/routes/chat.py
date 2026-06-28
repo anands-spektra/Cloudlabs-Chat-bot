@@ -11,7 +11,7 @@ from ...models.attachment import Attachment
 from ...schemas.chat import MessageRead, SendMessageRequest, CloseSessionRequest, SessionWithTicket
 from ...schemas.ticket import TicketRead
 from ..dependencies import get_current_user
-from ...services.openai_service import get_openai_response
+from ...services.openai_service import get_openai_response, _user_wants_escalation
 from ...services.search_service import retrieve_chunks
 from ...services.summary_service import generate_summary
 
@@ -38,9 +38,14 @@ async def create_session(
         session_id=session.id,
         role=MessageRole.assistant,
         content=(
-            f"👋 Hi! I'm the **CloudLabs AI Assistant**.\n\n"
-            "I can help with lab provisioning, deployments, LMS integration, billing, "
-            "Azure migration, and more. What do you need help with today?"
+            "👋 Hi! I'm the **CloudLabs AI Assistant** — your instant support companion for lab environments.\n\n"
+            "I can help you with:\n"
+            "- 🖥️ **VM connectivity** — RDP/SSH issues, networking, firewall\n"
+            "- 🚀 **Lab deployment** — provisioning errors, ARM templates, quota limits\n"
+            "- ✅ **Validation failures** — challenge checks, scoring, progress tracking\n"
+            "- 🔑 **Sign-in problems** — credentials, MFA, guest access\n"
+            "- 📋 **LMS & billing** — CloudLabs portal, license usage, cost reports\n\n"
+            "Pick a suggestion below or describe your issue — I'll get you sorted fast!"
         ),
     )
     db.add(welcome)
@@ -154,12 +159,14 @@ async def send_message(
     )
 
     # Save AI message
+    escalation_needed = ai_response.get("escalation_needed", False) or _user_wants_escalation(payload.content)
     ai_msg = ChatMessage(
         session_id=session_id,
         role=MessageRole.assistant,
         content=ai_response["content"],
         prompt_tokens=ai_response.get("prompt_tokens"),
         completion_tokens=ai_response.get("completion_tokens"),
+        escalation_needed=escalation_needed,
     )
     db.add(ai_msg)
     await db.flush()

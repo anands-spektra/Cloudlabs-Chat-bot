@@ -45,6 +45,7 @@ export interface Message {
   content: string
   citations?: Citation[]
   attachments?: Attachment[]
+  escalation_needed?: boolean
   created_at: string
   is_streaming?: boolean
 }
@@ -72,6 +73,11 @@ export interface Ticket {
   summary?: string
   message_count?: number
   last_message?: string
+  deployment_id?: string
+  lab_name?: string
+  issue_summary?: string
+  detailed_description?: string
+  subject?: string
 }
 
 export interface SatisfactionFeedback {

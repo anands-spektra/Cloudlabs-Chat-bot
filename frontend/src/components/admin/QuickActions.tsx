@@ -49,7 +49,7 @@ export default function QuickActions({ onNavigate }: { onNavigate: (v: AdminView
           <button
             key={a.id}
             onClick={() => onNavigate(a.id)}
-            className="bg-white rounded-xl border border-gray-100 p-4 text-left hover:border-primary-200 hover:shadow-sm transition-all group"
+            className="bg-white rounded-xl border border-gray-100 p-4 text-left hover:border-primary-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group"
           >
             <div className="flex items-start justify-between mb-3">
               <div className={`w-9 h-9 rounded-xl ${a.color} flex items-center justify-center`}>

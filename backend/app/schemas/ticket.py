@@ -16,8 +16,20 @@ class TicketRead(BaseModel):
     summary: Optional[str] = None
     message_count: Optional[int] = None
     last_message: Optional[str] = None
+    deployment_id: Optional[str] = None
+    lab_name: Optional[str] = None
+    issue_summary: Optional[str] = None
+    detailed_description: Optional[str] = None
+    subject: Optional[str] = None
 
     model_config = {"from_attributes": True}
+
+
+class EscalateRequest(BaseModel):
+    deployment_id: str
+    lab_name: str
+    issue_summary: str
+    detailed_description: Optional[str] = None
 
 
 class TicketListResponse(BaseModel):

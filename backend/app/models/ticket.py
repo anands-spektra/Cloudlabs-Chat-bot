@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import String, Text, DateTime, ForeignKey, Enum, Float, Integer
+from sqlalchemy import String, Text, DateTime, ForeignKey, Enum, Float, Integer, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from ..core.database import Base
 import enum
@@ -24,6 +24,12 @@ class Ticket(Base):
     status: Mapped[TicketStatus] = mapped_column(Enum(TicketStatus), default=TicketStatus.new)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
+    deployment_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    lab_name: Mapped[str | None] = mapped_column(String, nullable=True)
+    issue_summary: Mapped[str | None] = mapped_column(String, nullable=True)
+    detailed_description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    subject: Mapped[str | None] = mapped_column(String, nullable=True)
 
     session = relationship("Session", back_populates="ticket", foreign_keys=[session_id])
     user = relationship("User")

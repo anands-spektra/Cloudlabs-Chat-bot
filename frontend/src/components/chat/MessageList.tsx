@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import type { Message } from '../../types'
 import MessageBubble from './MessageBubble'
-import { Loader2 } from 'lucide-react'
+import BotAvatar from './BotAvatar'
 
 interface Props {
   messages: Message[]
@@ -28,12 +28,12 @@ export default function MessageList({ messages, isLoading, onSuggestion }: Props
       ))}
 
       {isLoading && (
-        <div className="flex gap-3 items-start">
-          <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center shrink-0">
-            <span className="text-white text-xs font-bold">AI</span>
-          </div>
-          <div className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl rounded-tl-sm">
-            <Loader2 size={14} className="animate-spin text-primary-500" />
+        <div className="flex gap-3 items-end">
+          <BotAvatar pulse />
+          <div className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl rounded-tl-sm flex items-center gap-1">
+            <span className="w-1.5 h-1.5 bg-primary-400 rounded-full animate-bounce [animation-delay:0ms]" />
+            <span className="w-1.5 h-1.5 bg-primary-400 rounded-full animate-bounce [animation-delay:150ms]" />
+            <span className="w-1.5 h-1.5 bg-primary-400 rounded-full animate-bounce [animation-delay:300ms]" />
           </div>
         </div>
       )}

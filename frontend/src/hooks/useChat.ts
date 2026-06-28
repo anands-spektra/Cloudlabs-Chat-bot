@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react'
-import { sessionApi, fileApi } from '../services/api'
+import { sessionApi, fileApi, ticketApi } from '../services/api'
 import { useChatStore } from '../store/chatStore'
 
 export function useChat() {
@@ -97,6 +97,14 @@ export function useChat() {
     setMessages(data)
   }, [session, setMessages])
 
+  const escalateTicket = useCallback(
+    async (payload: { deployment_id: string; lab_name: string; issue_summary: string; detailed_description?: string }) => {
+      if (!ticket) return
+      await ticketApi.escalate(ticket.id, payload)
+    },
+    [ticket]
+  )
+
   return {
     session,
     ticket,
@@ -107,5 +115,6 @@ export function useChat() {
     closeSession,
     loadHistory,
     startSession,
+    escalateTicket,
   }
 }

@@ -23,7 +23,35 @@ Answer questions about lab provisioning, deployments, LMS integration, billing, 
 Ground your answers in the retrieved knowledge context provided.
 If the context does not contain relevant information, say so honestly.
 Keep responses concise, clear, and actionable. Format using markdown where helpful.
-Do not make up information. If uncertain, recommend contacting the support team."""
+Do not make up information. If uncertain, recommend contacting the support team.
+
+ESCALATION PROTOCOL — follow this precisely:
+Review the conversation history. If ANY of the following conditions are true, you MUST escalate:
+1. The user says they already tried the troubleshooting steps (e.g. "tried everything", "nothing worked", "still not working", "issue persists", "didn't help", "already tried that")
+2. The same issue has been discussed for more than 2 exchanges with no resolution
+3. The user explicitly requests escalation or a support ticket
+4. The user expresses significant frustration
+
+When escalating:
+- Acknowledge empathetically that the issue has not been resolved
+- Do NOT suggest more troubleshooting steps
+- Tell the user they can raise a CloudLabs Support Ticket directly in the chat
+- End your response with exactly this marker on its own line: [ESCALATE]
+
+When NOT escalating, do not include [ESCALATE] in your response."""
+
+_ESCALATION_KEYWORDS = [
+    "tried everything", "nothing worked", "still not working", "issue persists",
+    "didn't help", "does not help", "doesnt help", "not helping", "want to escalate",
+    "raise a ticket", "create a ticket", "open a ticket", "contact support",
+    "need help from support", "transfer to support", "speak to someone",
+    "already tried", "tried all", "still having", "still broken", "still failing",
+]
+
+
+def _user_wants_escalation(text: str) -> bool:
+    lower = text.lower()
+    return any(kw in lower for kw in _ESCALATION_KEYWORDS)
 
 
 async def get_openai_response(
@@ -78,10 +106,15 @@ async def get_openai_response(
     )
 
     choice = response.choices[0]
+    raw_content = choice.message.content or ""
+    escalation_needed = "[ESCALATE]" in raw_content
+    content = raw_content.replace("[ESCALATE]", "").strip()
+
     return {
-        "content": choice.message.content or "",
+        "content": content,
         "prompt_tokens": response.usage.prompt_tokens if response.usage else 0,
         "completion_tokens": response.usage.completion_tokens if response.usage else 0,
+        "escalation_needed": escalation_needed,
     }
 
 

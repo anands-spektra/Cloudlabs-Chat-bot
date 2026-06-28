@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { X, MoreVertical, Loader2 } from 'lucide-react'
 import MessageList from './MessageList'
 import MessageInput from './MessageInput'
+import BotAvatar from './BotAvatar'
 import { useChat } from '../../hooks/useChat'
 import { useChatStore } from '../../store/chatStore'
 import { useAuthStore } from '../../store/authStore'
@@ -23,8 +24,8 @@ export default function ChatWidget() {
     return (
       <div className="w-[540px] h-[680px] bg-white rounded-2xl shadow-2xl border border-gray-100 flex items-center justify-center">
         <div className="text-center space-y-3">
-          <div className="w-12 h-12 bg-primary-600 rounded-xl flex items-center justify-center mx-auto">
-            <span className="text-white font-bold text-sm">AI</span>
+          <div className="flex items-center justify-center mx-auto">
+            <BotAvatar size="md" />
           </div>
           <Loader2 size={20} className="animate-spin text-primary-500 mx-auto" />
           <p className="text-sm text-gray-500">Starting session…</p>
@@ -37,9 +38,7 @@ export default function ChatWidget() {
     <div className="w-[540px] h-[680px] bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3.5 border-b border-gray-100 shrink-0">
-        <div className="w-9 h-9 rounded-full bg-primary-600 flex items-center justify-center">
-          <span className="text-white font-bold text-xs">AI</span>
-        </div>
+        <BotAvatar size="md" />
 
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-gray-900 leading-tight">CloudLabs Assistant</p>

@@ -1,0 +1,100 @@
+# ==========================
+# Python
+# ==========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# VS Code Local History
+.history/
+
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+
+# Backend virtual environment
+backend/venv/
+
+# Environment variables
+.env
+.env.*
+backend/.env
+
+# Folder
+graphify-out
+
+# Python packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Pip
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Pytest
+.pytest_cache/
+
+# Coverage
+.coverage
+.coverage.*
+htmlcov/
+
+# Mypy
+.mypy_cache/
+
+# Ruff
+.ruff_cache/
+
+# Pyright
+.pyright/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# JetBrains
+.idea/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# SQLite
+*.sqlite3
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# Node (if frontend exists)
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Frontend build
+.next/
+out/
+dist/
+
+# Azure Functions
+.local.settings.json
+
+# Secrets
+*.pem
+*.key
+*.pfx
+
+# Generated files (optional)
+reports/
+output/
+temp/

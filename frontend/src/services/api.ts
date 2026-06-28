@@ -14,7 +14,7 @@ import type {
   User,
 } from '../types'
 
-const BASE_URL = (import.meta.env.VITE_API_URL as string) || ''
+const BASE_URL = ((import.meta as any).env?.VITE_API_URL as string) || ''
 
 export const api = axios.create({
   baseURL: `${BASE_URL}/api`,
@@ -50,6 +50,13 @@ export const authApi = {
 
   me: (token?: string) =>
     api.get<User>('/auth/me', token ? { headers: { Authorization: `Bearer ${token}` } } : undefined),
+}
+
+export const ticketApi = {
+  escalate: (
+    ticketId: string,
+    payload: { deployment_id: string; lab_name: string; issue_summary: string; detailed_description?: string }
+  ) => api.post<Ticket>(`/tickets/${ticketId}/escalate`, payload),
 }
 
 export const sessionApi = {
@@ -101,6 +108,9 @@ export const adminApi = {
   transferTicket: (ticketId: string) =>
     api.post(`/admin/tickets/${ticketId}/transfer`),
 
+  getTicketDetail: (ticketId: string) =>
+    api.get<{ ticket: Ticket; messages: Message[] }>(`/admin/tickets/${ticketId}`),
+
   getActivity: () =>
     api.get<ActivityItem[]>('/admin/activity'),
 
@@ -120,4 +130,13 @@ export const knowledgeApi = {
 
   deleteBlob: (blobName: string) =>
     api.delete(`/admin/knowledge/blobs/${encodeURIComponent(blobName)}`),
+
+  uploadBlob: (file: File, autoIngest = true) => {
+    const form = new FormData()
+    form.append('file', file)
+    return api.post<{ blob_name: string; size: number; ingested: boolean; chunks: number }>(
+      `/admin/knowledge/upload?auto_ingest=${autoIngest}`,
+      form
+    )
+  },
 }

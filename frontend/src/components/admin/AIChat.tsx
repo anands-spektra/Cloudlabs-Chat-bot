@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
-import { ArrowUp, Loader2, Paperclip } from 'lucide-react'
+import { ArrowUp, Paperclip } from 'lucide-react'
 import { adminApi } from '../../services/api'
 import { useAuthStore } from '../../store/authStore'
+import BotAvatar from '../chat/BotAvatar'
 
 interface Msg {
   id: string
@@ -42,7 +43,7 @@ export default function AIChat() {
       const session_id = tickets.tickets[0]?.session_id
       if (!session_id) throw new Error('no session')
       const resp = await adminApi.getSessionMessages(session_id)
-      const lastMsg = (resp.data as Msg[]).filter((m) => m.role === 'assistant').slice(-1)[0]
+      const lastMsg = (resp.data as unknown as Msg[]).filter((m) => m.role === 'assistant').slice(-1)[0]
       const aiMsg: Msg = {
         id: `a-${Date.now()}`,
         role: 'assistant',
@@ -76,11 +77,13 @@ export default function AIChat() {
         <div className="flex-1 overflow-y-auto scrollbar-thin p-5 space-y-4">
           {msgs.map((m) => (
             <div key={m.id} className={`flex gap-3 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
-                m.role === 'assistant' ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-700'
-              }`}>
-                {m.role === 'assistant' ? 'AI' : (user?.name[0] ?? 'U')}
-              </div>
+              {m.role === 'assistant' ? (
+                <BotAvatar size="sm" />
+              ) : (
+                <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center shrink-0 text-xs font-bold text-gray-700">
+                  {user?.name[0] ?? 'U'}
+                </div>
+              )}
               <div className={`max-w-[75%] px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
                 m.role === 'assistant'
                   ? 'bg-gray-50 border border-gray-100 text-gray-800 rounded-tl-sm'
@@ -91,12 +94,12 @@ export default function AIChat() {
             </div>
           ))}
           {loading && (
-            <div className="flex gap-3 items-start">
-              <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center shrink-0">
-                <span className="text-white text-xs font-bold">AI</span>
-              </div>
-              <div className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl rounded-tl-sm">
-                <Loader2 size={14} className="animate-spin text-primary-500" />
+            <div className="flex gap-3 items-end">
+              <BotAvatar size="sm" pulse />
+              <div className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl rounded-tl-sm flex items-center gap-1">
+                <span className="w-1.5 h-1.5 bg-primary-400 rounded-full animate-bounce [animation-delay:0ms]" />
+                <span className="w-1.5 h-1.5 bg-primary-400 rounded-full animate-bounce [animation-delay:150ms]" />
+                <span className="w-1.5 h-1.5 bg-primary-400 rounded-full animate-bounce [animation-delay:300ms]" />
               </div>
             </div>
           )}

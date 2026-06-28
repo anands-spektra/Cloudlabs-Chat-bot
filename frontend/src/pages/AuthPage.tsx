@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import SignIn from '../components/auth/SignIn'
 import SignUp from '../components/auth/SignUp'
+import BotAvatar from '../components/chat/BotAvatar'
 
 export default function AuthPage() {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
@@ -9,8 +10,10 @@ export default function AuthPage() {
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-primary-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <span className="text-white font-bold text-xl tracking-wide">AI</span>
+          <div className="flex justify-center mb-4">
+            <div className="w-20 h-20 [&>div]:w-20 [&>div]:h-20 [&_svg]:w-9 [&_svg]:h-9">
+              <BotAvatar pulse />
+            </div>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">CloudLabs Assistant</h1>
           <p className="text-gray-500 text-sm mt-1">AI-powered lab support platform</p>

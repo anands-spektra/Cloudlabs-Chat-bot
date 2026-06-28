@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
@@ -150,6 +150,45 @@ async def get_session_messages(
     return res.scalars().all()
 
 
+@router.get("/tickets/{ticket_id}", response_model=dict)
+async def get_ticket_detail(
+    ticket_id: str,
+    _: User = Depends(get_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    res = await db.execute(select(Ticket).options(selectinload(Ticket.user)).where(Ticket.id == ticket_id))
+    ticket = res.scalar_one_or_none()
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+
+    msg_res = await db.execute(
+        select(ChatMessage)
+        .options(selectinload(ChatMessage.citations), selectinload(ChatMessage.attachments))
+        .where(ChatMessage.session_id == ticket.session_id)
+        .order_by(ChatMessage.created_at)
+    )
+    messages = msg_res.scalars().all()
+
+    return {
+        "ticket": TicketRead(
+            id=ticket.id,
+            session_id=ticket.session_id,
+            user_id=ticket.user_id,
+            user_name=ticket.user.name if ticket.user else None,
+            user_email=ticket.user.email if ticket.user else None,
+            status=ticket.status,
+            created_at=ticket.created_at,
+            updated_at=ticket.updated_at,
+            deployment_id=ticket.deployment_id,
+            lab_name=ticket.lab_name,
+            issue_summary=ticket.issue_summary,
+            detailed_description=ticket.detailed_description,
+            subject=ticket.subject,
+        ),
+        "messages": [MessageRead.model_validate(m) for m in messages],
+    }
+
+
 @router.post("/tickets/{ticket_id}/transfer", status_code=200)
 async def transfer_ticket(
     ticket_id: str,
@@ -264,3 +303,49 @@ async def delete_knowledge_blob(
     from ...services.knowledge_service import delete_blob_chunks
     deleted = await delete_blob_chunks(blob_name)
     return {"deleted_chunks": deleted}
+
+
+@router.post("/knowledge/upload")
+async def upload_knowledge_file(
+    file: UploadFile = File(...),
+    auto_ingest: bool = True,
+    _: User = Depends(get_admin_user),
+):
+    import pathlib
+    from ...services.knowledge_service import (
+        SUPPORTED_EXTENSIONS,
+        ensure_search_index,
+        ingest_blob,
+        _blob_svc,
+    )
+    from ...core.config import get_settings as _settings
+
+    ext = pathlib.Path(file.filename or "").suffix.lower()
+    if ext not in SUPPORTED_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported file type '{ext}'. Supported: {', '.join(sorted(SUPPORTED_EXTENSIONS))}",
+        )
+
+    cfg = _settings()
+    svc = _blob_svc()
+    if not svc:
+        raise HTTPException(status_code=503, detail="Azure Storage is not configured")
+
+    data = await file.read()
+    blob_name = file.filename
+
+    async with svc:
+        container = svc.get_container_client(cfg.azure_storage_container_name)
+        blob_client = container.get_blob_client(blob_name)
+        await blob_client.upload_blob(data, overwrite=True)
+
+    result: dict = {"blob_name": blob_name, "size": len(data), "ingested": False, "chunks": 0}
+
+    if auto_ingest:
+        await ensure_search_index()
+        ingestion = await ingest_blob(blob_name)
+        result["ingested"] = True
+        result["chunks"] = ingestion.get("chunks", 0)
+
+    return result

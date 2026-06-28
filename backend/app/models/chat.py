@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import String, Text, DateTime, ForeignKey, Enum, Float
+from sqlalchemy import String, Text, DateTime, ForeignKey, Enum, Float, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from ..core.database import Base
 import enum
@@ -40,6 +40,7 @@ class ChatMessage(Base):
     content: Mapped[str] = mapped_column(Text, nullable=False)
     prompt_tokens: Mapped[int | None] = mapped_column(nullable=True)
     completion_tokens: Mapped[int | None] = mapped_column(nullable=True)
+    escalation_needed: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     session = relationship("Session", back_populates="messages")
